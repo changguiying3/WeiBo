@@ -16,7 +16,20 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
+    self.window = [[UIWindow alloc]init];
+    self.window.frame = [UIScreen mainScreen].bounds;
+    UITabBarController *tabbar = [[UITabBarController alloc]init];
+    UIViewController *vc1 = [[UIViewController alloc]init];
+    vc1.view.backgroundColor = WBRandomColor;
+    UIViewController *vc2 = [[UIViewController alloc]init];
+    vc2.view.backgroundColor = WBRandomColor;
+    UIViewController *vc3 = [[UIViewController alloc]init];
+    vc3.view.backgroundColor = WBRandomColor;
+    self.window.rootViewController = tabbar;
+    UIViewController *vc4 = [[UIViewController alloc]init];
+    vc4.view.backgroundColor = WBRandomColor;
+    tabbar.viewControllers = @[vc1,vc2,vc3,vc4];
+    [self.window makeKeyAndVisible];
     return YES;
 }
 
