@@ -16,7 +16,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view from its nib.
 }
 
 - (void)didReceiveMemoryWarning {
@@ -28,5 +27,4 @@
     test1VC.title = @"测试控制器2";
     [self.navigationController pushViewController:test1VC animated:YES];
 }
-
 @end

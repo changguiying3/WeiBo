@@ -11,6 +11,7 @@
 #import "WBMassegeViewController.h"
 #import "WBDiscoverViewController.h"
 #import "WBProfileViewController.h"
+#import "WBNavigationController.h"
 @interface WBMainController ()
 
 @end
@@ -50,7 +51,7 @@
     NSMutableDictionary *selectTextAttrs = [NSMutableDictionary dictionary];
     selectTextAttrs[NSForegroundColorAttributeName] = [UIColor orangeColor];
     [childVC.tabBarItem setTitleTextAttributes:selectTextAttrs forState:UIControlStateSelected];
-    UINavigationController *nav = [[UINavigationController alloc]initWithRootViewController:childVC];
+    WBNavigationController *nav = [[WBNavigationController alloc]initWithRootViewController:childVC];
     [self addChildViewController:nav];
 }
 @end
