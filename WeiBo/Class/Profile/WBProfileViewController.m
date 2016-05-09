@@ -1,24 +1,24 @@
 //
-//  WBHomeViewController.m
+//  WBProfileViewController.m
 //  WeiBo
 //
 //  Created by mac on 16/5/6.
 //  Copyright © 2016年 mac. All rights reserved.
 //
 
-#import "WBHomeViewController.h"
-#import "UIBarButtonItem+Extention.h"
-@interface WBHomeViewController ()
+#import "WBProfileViewController.h"
+
+@interface WBProfileViewController ()
 
 @end
 
-@implementation WBHomeViewController
+@implementation WBProfileViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.navigationItem.leftBarButtonItem = [UIBarButtonItem itemWithTarget:self action:@selector(fetch) image:@"navigationbar_friendsearch" highImage:@"navigationbar_friendsearch_highlight"];
-    self.navigationItem.rightBarButtonItem = [UIBarButtonItem itemWithTarget:self action:@selector(pop) image:@"navigationbar_pop" highImage:@"navigationbar_pop_highlight"];
-    }
+    
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"设置" style:UIBarButtonItemStylePlain target:self action:@selector(set)];
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -36,12 +36,10 @@
 #warning Incomplete implementation, return the number of rows
     return 0;
 }
--(void)fetch{
-    NSLog(@"friends");
+-(void)set{
+    WBLog(@"do something");
 }
--(void)pop{
-    NSLog(@"pop");
-}
+
 /*
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier: forIndexPath:indexPath];

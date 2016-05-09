@@ -1,57 +1,50 @@
 //
-//  WBMassegeViewController.m
+//  WBHomeViewController.m
 //  WeiBo
 //
 //  Created by mac on 16/5/6.
 //  Copyright © 2016年 mac. All rights reserved.
 //
 
-#import "WBMassegeViewController.h"
-#import "WBTestViewController.h"
-@interface WBMassegeViewController ()
+#import "WBHomeViewController.h"
+#import "UIBarButtonItem+Extention.h"
+@interface WBHomeViewController ()
 
 @end
 
-@implementation WBMassegeViewController
+@implementation WBHomeViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"写私信" style:UIBarButtonItemStylePlain target:self action:@selector(personWrite)];
+    self.navigationItem.leftBarButtonItem = [UIBarButtonItem itemWithTarget:self action:@selector(fetch) image:@"navigationbar_friendsearch" highImage:@"navigationbar_friendsearch_highlight"];
+    self.navigationItem.rightBarButtonItem = [UIBarButtonItem itemWithTarget:self action:@selector(pop) image:@"navigationbar_pop" highImage:@"navigationbar_pop_highlight"];
     }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
--(void)viewWillAppear:(BOOL)animated{
-    self.navigationItem.rightBarButtonItem.enabled = NO;
-}
-#pragma mark - Table view data source
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 
-    return 20;
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+#warning Incomplete implementation, return the number of sections
+    return 0;
 }
--(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-    static NSString *ID = @"cell";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
-    if (cell == nil) {
-        cell =[[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ID];
-    }
-    cell.textLabel.text = [NSString stringWithFormat:@"test-%ld",indexPath.row];
-    return cell;
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+#warning Incomplete implementation, return the number of rows
+    return 0;
 }
-#pragma --代理方法
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    WBTestViewController *testVC = [[WBTestViewController alloc]init];
-    testVC.title = @"测试控制器1";
-    [self.navigationController pushViewController:testVC animated:YES];
+-(void)fetch{
+    WBLog(@"friends");
 }
--(void)personWrite{
-    NSLog(@"write");
+-(void)pop{
+    WBLog(@"pop");
 }
 /*
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:; forIndexPath:indexPath];
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier: forIndexPath:indexPath];
     
     // Configure the cell...
     

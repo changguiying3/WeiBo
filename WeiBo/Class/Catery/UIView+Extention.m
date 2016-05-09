@@ -55,6 +55,6 @@
     self.frame = frame;
 }
 -(CGPoint)origin{
-    return self.origin;
+    return self.frame.origin;
 }
 @end

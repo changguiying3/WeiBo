@@ -39,7 +39,7 @@
 }
 
 -(void)addChildVc:(UIViewController *)childVC title:(NSString *)title image:(NSString *)image selectedImage:(NSString *)seletedImage{
-    childVC.view.backgroundColor = WBRandomColor;
+    //childVC.view.backgroundColor = WBRandomColor;
     //childVC.tabBarItem.title = title;
     //childVC.navigationItem.title = title;
     childVC.title = title;

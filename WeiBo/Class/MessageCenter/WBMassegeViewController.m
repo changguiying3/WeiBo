@@ -1,48 +1,57 @@
 //
-//  WBProfileViewController.m
+//  WBMassegeViewController.m
 //  WeiBo
 //
 //  Created by mac on 16/5/6.
 //  Copyright © 2016年 mac. All rights reserved.
 //
 
-#import "WBProfileViewController.h"
-
-@interface WBProfileViewController ()
+#import "WBMassegeViewController.h"
+#import "WBTestViewController.h"
+@interface WBMassegeViewController ()
 
 @end
 
-@implementation WBProfileViewController
+@implementation WBMassegeViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"设置" style:UIBarButtonItemStylePlain target:self action:@selector(set)];
-}
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"写私信" style:UIBarButtonItemStylePlain target:self action:@selector(personWrite)];
+    }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-
+-(void)viewWillAppear:(BOOL)animated{
+    self.navigationItem.rightBarButtonItem.enabled = NO;
+}
 #pragma mark - Table view data source
-
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-#warning Incomplete implementation, return the number of sections
-    return 0;
-}
-
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-#warning Incomplete implementation, return the number of rows
-    return 0;
-}
--(void)set{
-    NSLog(@"do something");
-}
 
+    return 20;
+}
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    static NSString *ID = @"cell";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+    if (cell == nil) {
+        cell =[[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ID];
+    }
+    cell.textLabel.text = [NSString stringWithFormat:@"test-%ld",indexPath.row];
+    return cell;
+}
+#pragma --代理方法
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    WBTestViewController *testVC = [[WBTestViewController alloc]init];
+    testVC.title = @"测试控制器1";
+    [self.navigationController pushViewController:testVC animated:YES];
+}
+-(void)personWrite{
+    WBLog(@"write");
+}
 /*
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier: forIndexPath:indexPath];
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:; forIndexPath:indexPath];
     
     // Configure the cell...
     
