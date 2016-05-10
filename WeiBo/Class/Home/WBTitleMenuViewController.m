@@ -1,39 +1,26 @@
 //
-//  WBHomeViewController.m
+//  WBTitleMenuViewController.m
 //  WeiBo
 //
-//  Created by mac on 16/5/6.
+//  Created by mac on 16/5/10.
 //  Copyright © 2016年 mac. All rights reserved.
 //
 
-#import "WBHomeViewController.h"
-#import "UIBarButtonItem+Extention.h"
 #import "WBTitleMenuViewController.h"
-#import "WBDropdownMenu.h"
-@interface WBHomeViewController ()
+
+@interface WBTitleMenuViewController ()
 
 @end
 
-@implementation WBHomeViewController
-
+@implementation WBTitleMenuViewController
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.navigationItem.leftBarButtonItem = [UIBarButtonItem itemWithTarget:self action:@selector(fetch) image:@"navigationbar_friendsearch" highImage:@"navigationbar_friendsearch_highlight"];
-    self.navigationItem.rightBarButtonItem = [UIBarButtonItem itemWithTarget:self action:@selector(pop) image:@"navigationbar_pop" highImage:@"navigationbar_pop_highlight"];
+    // Uncomment the following line to preserve selection between presentations.
+    // self.clearsSelectionOnViewWillAppear = NO;
     
-    UIButton *titleButton = [[UIButton alloc]init];
-    titleButton.width = 150;
-    titleButton.height = 30;
-    [titleButton setTitle:@"首页" forState:UIControlStateNormal];
-    [titleButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    titleButton.titleLabel.font = [UIFont boldSystemFontOfSize:17];
-    [titleButton setImage:[UIImage imageNamed:@"navigationbar_arrow_down"] forState: UIControlStateNormal];
-    titleButton.imageEdgeInsets = UIEdgeInsetsMake(0, 70, 0, 0);
-    titleButton.titleEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 40);
-    [titleButton addTarget:self action:@selector(titleClick:) forControlEvents:UIControlEventTouchUpInside];
-    self.navigationItem.titleView = titleButton;
-    
-    }
+    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
+    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -44,36 +31,30 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
 #warning Incomplete implementation, return the number of sections
-    return 0;
+    return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-#warning Incomplete implementation, return the number of rows
-    return 0;
-}
--(void)fetch{
-    WBLog(@"friends");
-}
--(void)pop{
-    WBLog(@"pop");
-}
--(void)titleClick:(UIButton *)titleButton{
-    WBDropdownMenu *menu = [WBDropdownMenu menu];
-    WBTitleMenuViewController *vc = [[WBTitleMenuViewController alloc]init];
-    vc.view.height = 150;
-    vc.view.width = 150;
-    menu.contentController = vc;
-    [menu showFrom:titleButton];
-}
-/*
+    return 3;
+    }
+
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier: forIndexPath:indexPath];
     
-    // Configure the cell...
-    
+    static NSString *ID = @"cell";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:ID];
+    }
+    if (indexPath.row == 0) {
+        cell.textLabel.text = @"好友";
+    }else if(indexPath.row == 1){
+        cell.textLabel.text = @"同学";
+    }else if (indexPath.row == 2){
+        cell.textLabel.text = @"家人";
+    }
     return cell;
 }
-*/
 
 /*
 // Override to support conditional editing of the table view.

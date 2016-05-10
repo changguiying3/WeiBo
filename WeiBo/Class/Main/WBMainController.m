@@ -21,7 +21,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     //UITabBarController *tabbarVC = [[UITabBarController alloc]init];
-    
+    /**
+     设置各个控制器
+     */
     WBHomeViewController *home =[[WBHomeViewController alloc]init];
     [self addChildVc:home title:@"首页" image:@"tabbar_home" selectedImage:@"tabbar_home_selected"];
     WBMassegeViewController *message = [[WBMassegeViewController alloc]init];
@@ -37,7 +39,10 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-
+/**
+ *  设置控制器的图片和颜色
+ *
+ */
 -(void)addChildVc:(UIViewController *)childVC title:(NSString *)title image:(NSString *)image selectedImage:(NSString *)seletedImage{
     //childVC.view.backgroundColor = WBRandomColor;
     //childVC.tabBarItem.title = title;
