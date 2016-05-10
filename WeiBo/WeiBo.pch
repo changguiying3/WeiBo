@@ -1,0 +1,20 @@
+//
+//  WeiBo.pch
+//  WeiBo
+//
+//  Created by mac on 16/5/5.
+//  Copyright © 2016年 mac. All rights reserved.
+//
+
+#ifndef WeiBo_pch
+#define WeiBo_pch
+#define WBColor(r,g,b) [UIColor colorWithRed:(r)/255.0 green:(r)/255.0 blue:(r)/255.0 alpha:1.0]
+#define WBRandomColor WBColor(arc4random_uniform(256),arc4random_uniform(256),arc4random_uniform(256))
+#import "UIView+Extention.h"
+#import "UIBarButtonItem+Extention.h"
+#ifdef DEBUG
+#define WBLog(...)  NSLog(__VA_ARGS__)
+#else
+#define WBLog(...)
+#endif
+#endif /* WeiBo_pch */
