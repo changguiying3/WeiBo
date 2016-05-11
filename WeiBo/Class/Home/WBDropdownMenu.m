@@ -70,12 +70,18 @@
     CGRect newFrame = [from convertRect:from.bounds toView:window];
     self.containerView.y = CGRectGetMaxY(newFrame);
     self.containerView.centerX = CGRectGetMidX(newFrame);
+    if ([self.delegate respondsToSelector:@selector(dropdownMenuDidShow:)]) {
+        [self.delegate dropdownMenuDidShow:self];
+    }
 }
 /**
  *  销毁
  */
 -(void)dismiss{
     [self removeFromSuperview];
+    if ([self.delegate respondsToSelector:@selector(dropdownMenuDidDismiss:)]) {
+        [self.delegate dropdownMenuDidDismiss:self];
+    }
 }
 -(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
     [self dismiss];

@@ -12,7 +12,8 @@
 #import "WBDiscoverViewController.h"
 #import "WBProfileViewController.h"
 #import "WBNavigationController.h"
-@interface WBMainController ()
+#import "WBTabBar.h"
+@interface WBMainController ()<WBTabBarDelegate>
 
 @end
 
@@ -32,7 +33,9 @@
     [self addChildVc:find title:@"发现" image:@"tabbar_discover" selectedImage:@"tabbar_discover_selected"];
     WBProfileViewController *profile = [[WBProfileViewController alloc]init];
     [self addChildVc:profile title:@"我" image:@"tabbar_profile" selectedImage:@"tabbar_profile_selected"];
-    
+    WBTabBar *tabBar = [[WBTabBar alloc]init];
+    tabBar.delegate = self;
+    [self setValue:tabBar forKeyPath:@"tabBar"];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -58,5 +61,10 @@
     [childVC.tabBarItem setTitleTextAttributes:selectTextAttrs forState:UIControlStateSelected];
     WBNavigationController *nav = [[WBNavigationController alloc]initWithRootViewController:childVC];
     [self addChildViewController:nav];
+}
+-(void)tabBarDidClickPlusButton:(WBTabBar *)tabbar{
+    UIViewController *vc = [[UIViewController alloc]init];
+    vc.view.backgroundColor = [UIColor redColor];
+    [self presentViewController:vc animated:YES completion:nil];
 }
 @end

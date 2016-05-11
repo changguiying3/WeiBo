@@ -10,7 +10,9 @@
 #import "UIBarButtonItem+Extention.h"
 #import "WBTitleMenuViewController.h"
 #import "WBDropdownMenu.h"
-@interface WBHomeViewController ()
+
+@interface WBHomeViewController ()<WBDropdownMenuDelegate>
+
 
 @end
 
@@ -28,11 +30,12 @@
     [titleButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     titleButton.titleLabel.font = [UIFont boldSystemFontOfSize:17];
     [titleButton setImage:[UIImage imageNamed:@"navigationbar_arrow_down"] forState: UIControlStateNormal];
+    [titleButton setImage:[UIImage imageNamed:@"navigationbar_arrow_up"] forState:UIControlStateSelected];
     titleButton.imageEdgeInsets = UIEdgeInsetsMake(0, 70, 0, 0);
     titleButton.titleEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 40);
     [titleButton addTarget:self action:@selector(titleClick:) forControlEvents:UIControlEventTouchUpInside];
     self.navigationItem.titleView = titleButton;
-    
+   
     }
 
 - (void)didReceiveMemoryWarning {
@@ -59,11 +62,24 @@
 }
 -(void)titleClick:(UIButton *)titleButton{
     WBDropdownMenu *menu = [WBDropdownMenu menu];
+    menu.delegate = self;
     WBTitleMenuViewController *vc = [[WBTitleMenuViewController alloc]init];
     vc.view.height = 150;
     vc.view.width = 150;
     menu.contentController = vc;
     [menu showFrom:titleButton];
+}
+#pragma --实现销毁代理方法
+-(void)dropdownMenuDidDismiss:(WBDropdownMenu *)menu{
+    UIButton *titleButton = (UIButton *)self.navigationItem.titleView;
+    titleButton.selected = NO;
+//    WBLog(@"111");
+}
+#pragma --实现现实代理方法
+-(void)dropdownMenuDidShow:(WBDropdownMenu *)menu{
+    UIButton *titleButton = (UIButton *)self.navigationItem.titleView;
+    titleButton.selected = YES;
+//    WBLog(@"222");
 }
 /*
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
