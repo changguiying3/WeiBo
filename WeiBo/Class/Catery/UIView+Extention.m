@@ -1,4 +1,4 @@
-//
+      //
 //  UIView+Extention.m
 //  WeiBo
 //
@@ -63,7 +63,7 @@
     self.center = center;
 }
 -(CGFloat)centerX{
-    return self.centerX;
+    return self.center.x;
 }
 -(void)setCenterY:(CGFloat)centerY{
     CGPoint center = self.center;
@@ -71,6 +71,6 @@
     self.center = center;
 }
 -(CGFloat)centerY{
-    return self.centerY;
+    return self.center.y;
 }
 @end

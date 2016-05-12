@@ -8,6 +8,7 @@
 
 #import "AppDelegate.h"
 #import "WBMainController.h"
+#import "WBNewFeatureController.h"
 
 @interface AppDelegate ()
 
@@ -19,7 +20,19 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     self.window = [[UIWindow alloc]init];
     self.window.frame = [UIScreen mainScreen].bounds;
-    self.window.rootViewController = [[WBMainController alloc]init];
+ 
+    NSString *key = @"CFBundleVersion";
+    NSString *lastVertion = [[NSUserDefaults standardUserDefaults]objectForKey:key];
+   NSString *currentVertion = [NSBundle mainBundle].infoDictionary[key];
+    if ([currentVertion isEqualToString:lastVertion]) {
+        self.window.rootViewController = [[WBMainController alloc]init];
+    }else{
+        self.window.rootViewController = [[WBNewFeatureController alloc]init];
+        [[NSUserDefaults standardUserDefaults]setObject:currentVertion forKey:key];
+         [[NSUserDefaults standardUserDefaults]synchronize];
+    }
+//    WBLog(@"%@",currentVertion);
+    
     [self.window makeKeyAndVisible];
     return YES;
 }
