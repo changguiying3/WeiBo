@@ -8,6 +8,9 @@
 
 #import "WBOAuthViewController.h"
 #import "AFNetworking.h"
+#import "MBProgressHUD.h"
+#import "WBAccountTool.h"
+#import "UIWindow+Extension.h"
 @interface WBOAuthViewController ()<UIWebViewDelegate>
 
 @end
@@ -24,18 +27,34 @@
     NSURL *url = [NSURL URLWithString:@"https://api.weibo.com/oauth2/authorize?client_id=2399444723&redirect_uri=http://www.baidu.com"];
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     [webView loadRequest:request];
-
+    webView.delegate = self;
    }
-
+#pragma mark - webView代理方法
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 -(void)webViewDidStartLoad:(UIWebView *)webView{
-    WBLog(@"webViewStartLoad");
-}
+//    WBLog(@"webViewStartLoad");
+    if (self.view == nil) {
+        self.view = [[UIApplication sharedApplication].windows lastObject];
+            }
+   MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    hud.label.text = @"Loading.....";
+    hud.removeFromSuperViewOnHide = YES;
+    }
 -(void)webViewDidFinishLoad:(UIWebView *)webView{
     WBLog(@"webViewFinishLoad");
+    if (self.view == nil) {
+        self.view = [[UIApplication sharedApplication].windows lastObject];
+    }
+    [MBProgressHUD hideHUDForView:self.view animated:YES];
+}
+-(void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error{
+    if (self.view == nil) {
+        self.view = [[UIApplication sharedApplication].windows lastObject];
+    }
+    [MBProgressHUD hideHUDForView:self.view animated:YES];
 }
 -(BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
@@ -43,7 +62,7 @@
     NSRange range = [url rangeOfString:@"code="];
     //判断是否为回调地址
     if (range.length != 0) {
-        int fromIndex = range.location + range.length;
+        NSInteger fromIndex = range.location + range.length;
         NSString *code = [url substringFromIndex:fromIndex];
         [self accessTokenWithCode:code];
     }
@@ -69,13 +88,34 @@
     params[@"redirect_uri"] = @"http://www.baidu.com";
     params[@"code"] = code;
     //发送请求
-    [mgr POST:@"https://api.weibo.com/oauth2/access_token" parameters:params progress:^(NSProgress * _Nonnull uploadProgress) {
-        nil;
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    [mgr POST:@"https://api.weibo.com/oauth2/access_token" parameters:params success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         WBLog(@"请求成功－％@",responseObject);
+        if (self.view == nil) {
+            self.view = [[UIApplication sharedApplication].windows lastObject];
+        }
+        [MBProgressHUD hideHUDForView:self.view animated:YES];
+        //字典转模型
+        WBAccount *account = [WBAccount accountWithDict:responseObject];
+        //存入沙盒帐号信息
+        [WBAccountTool saveAccount:account];
+        //切换窗口根控制器
+        UIWindow *window = [UIApplication sharedApplication].keyWindow;
+        [window switchRootViewController];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         WBLog(@"请求失败－％@",error);
+        //WBLog(@"请求成功－％@",responseObject);
+        if (self.view == nil) {
+            self.view = [[UIApplication sharedApplication].windows lastObject];
+        }
+        [MBProgressHUD hideHUDForView:self.view animated:YES];
     }];
+//    [mgr POST:@"https://api.weibo.com/oauth2/access_token" parameters:params progress:^(NSProgress * _Nonnull uploadProgress) {
+//        nil;
+//    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+//        WBLog(@"请求成功－％@",responseObject);
+//    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+//        WBLog(@"请求失败－％@",error);
+//    }];
  }
 /*
 #pragma mark - Navigation
@@ -86,5 +126,4 @@
     // Pass the selected object to the new view controller.
 }
 */
-
 @end

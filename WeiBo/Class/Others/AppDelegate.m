@@ -10,6 +10,8 @@
 #import "WBMainController.h"
 #import "WBNewFeatureController.h"
 #import "WBOAuthViewController.h"
+#import "WBAccountTool.h"
+#import "UIWindow+Extension.h"
 @interface AppDelegate ()
 
 @end
@@ -20,19 +22,13 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     self.window = [[UIWindow alloc]init];
     self.window.frame = [UIScreen mainScreen].bounds;
- 
-//    NSString *key = @"CFBundleVersion";
-//    NSString *lastVertion = [[NSUserDefaults standardUserDefaults]objectForKey:key];
-//   NSString *currentVertion = [NSBundle mainBundle].infoDictionary[key];
-//    if ([currentVertion isEqualToString:lastVertion]) {
-//        self.window.rootViewController = [[WBMainController alloc]init];
-//    }else{
-//        self.window.rootViewController = [[WBNewFeatureController alloc]init];
-//        [[NSUserDefaults standardUserDefaults]setObject:currentVertion forKey:key];
-//         [[NSUserDefaults standardUserDefaults]synchronize];
-//    }
-//    WBLog(@"%@",currentVertion);
-    self.window.rootViewController = [[WBOAuthViewController alloc]init];
+    WBAccount *account = [WBAccountTool account];
+    if (account) {//已经登陆成功
+        [self.window switchRootViewController];
+    }else{
+        self.window.rootViewController = [[WBOAuthViewController alloc]init];
+    }
+    
     [self.window makeKeyAndVisible];
     return YES;
 }
