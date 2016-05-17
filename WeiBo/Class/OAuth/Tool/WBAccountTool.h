@@ -7,7 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import "WBAccount.h"
 @interface WBAccountTool : NSObject
-
+/**
+ *  存储账号信息
+ */
++(void)saveAccount:(WBAccount *)account;
+/**
+ *  返回帐号信息
+ */
++(WBAccount *)account;
 @end
