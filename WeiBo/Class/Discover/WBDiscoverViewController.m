@@ -20,6 +20,8 @@
     searchBar.width = 350;
     searchBar.height = 30;
     self.navigationItem.titleView = searchBar;
+    //self.editing = YES;
+    //[self setEditing:NO];
   }
 
 - (void)didReceiveMemoryWarning {

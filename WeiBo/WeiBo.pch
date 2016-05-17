@@ -12,6 +12,7 @@
 #define WBRandomColor WBColor(arc4random_uniform(256),arc4random_uniform(256),arc4random_uniform(256))
 #import "UIView+Extention.h"
 #import "UIBarButtonItem+Extention.h"
+#import "UIWindow+Extension.h"
 #ifdef DEBUG
 #define WBLog(...)  NSLog(__VA_ARGS__)
 #else

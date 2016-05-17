@@ -18,9 +18,9 @@
     //当前的版本号
        NSString *currentVertion = [NSBundle mainBundle].infoDictionary[key];
         if ([currentVertion isEqualToString:lastVertion]) {
-            self.window.rootViewController = [[WBMainController alloc]init];
+            self.rootViewController = [[WBMainController alloc]init];
         }else{
-            self.window.rootViewController = [[WBNewFeatureController alloc]init];
+            self.rootViewController = [[WBNewFeatureController alloc]init];
             //将版本号存进沙盒
             [[NSUserDefaults standardUserDefaults]setObject:currentVertion forKey:key];
              [[NSUserDefaults standardUserDefaults]synchronize];

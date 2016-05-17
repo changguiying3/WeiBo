@@ -14,6 +14,8 @@
     account.access_token = dict[@"access_token"];
     account.uid = dict[@"uid"];
     account.expires_in = dict[@"expires_in"];
+    account.name = dict[@"name"];
+    account.created_time = [NSDate date];
     return account;
 }
 /**
@@ -24,6 +26,7 @@
     [aCoder encodeObject:self.uid forKey:@"uid"];
     [aCoder encodeObject:self.expires_in forKey:@"expires_in"];
     [aCoder encodeObject:self.created_time forKey:@"created_time"];
+    [aCoder encodeObject:self.name forKey:@"name"];
 }
 /**
  *  从沙盒中解档一个对象，取出需要的属性
@@ -34,6 +37,7 @@
         self.expires_in = [aDecoder decodeObjectForKey:@"expires_in"];
         self.uid = [aDecoder decodeObjectForKey:@"uid"];
         self.created_time = [aDecoder decodeObjectForKey:@"created_time"];
+        self.name = [aDecoder decodeObjectForKey:@"name"];
     }
     return self;
 }

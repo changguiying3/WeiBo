@@ -7,9 +7,11 @@
 //
 
 #import "WBHomeViewController.h"
-#import "UIBarButtonItem+Extention.h"
 #import "WBTitleMenuViewController.h"
 #import "WBDropdownMenu.h"
+#import "AFNetworking.h"
+#import "WBAccountTool.h"
+#import "WBTitleButton.h"
 
 @interface WBHomeViewController ()<WBDropdownMenuDelegate>
 
@@ -20,27 +22,48 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.navigationItem.leftBarButtonItem = [UIBarButtonItem itemWithTarget:self action:@selector(fetch) image:@"navigationbar_friendsearch" highImage:@"navigationbar_friendsearch_highlight"];
-    self.navigationItem.rightBarButtonItem = [UIBarButtonItem itemWithTarget:self action:@selector(pop) image:@"navigationbar_pop" highImage:@"navigationbar_pop_highlight"];
-    
-    UIButton *titleButton = [[UIButton alloc]init];
-    titleButton.width = 150;
-    titleButton.height = 30;
-    [titleButton setTitle:@"首页" forState:UIControlStateNormal];
-    [titleButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    titleButton.titleLabel.font = [UIFont boldSystemFontOfSize:17];
-    [titleButton setImage:[UIImage imageNamed:@"navigationbar_arrow_down"] forState: UIControlStateNormal];
-    [titleButton setImage:[UIImage imageNamed:@"navigationbar_arrow_up"] forState:UIControlStateSelected];
-    titleButton.imageEdgeInsets = UIEdgeInsetsMake(0, 70, 0, 0);
-    titleButton.titleEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 40);
-    [titleButton addTarget:self action:@selector(titleClick:) forControlEvents:UIControlEventTouchUpInside];
-    self.navigationItem.titleView = titleButton;
+    [self setNavigation];
+    [self setupUserInfo];
    
     }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+-(void)setNavigation{
+    self.navigationItem.leftBarButtonItem = [UIBarButtonItem itemWithTarget:self action:@selector(fetch) image:@"navigationbar_friendsearch" highImage:@"navigationbar_friendsearch_highlight"];
+    self.navigationItem.rightBarButtonItem = [UIBarButtonItem itemWithTarget:self action:@selector(pop) image:@"navigationbar_pop" highImage:@"navigationbar_pop_highlight"];
+    /*设置中间的文字*/
+    WBTitleButton *titleButton = [[WBTitleButton alloc]init];
+    NSString *name = [WBAccountTool account].name;
+    [titleButton setTitle:name?name:@"首页" forState:UIControlStateNormal];
+    //[titleButton sizeToFit];
+//    titleButton.width = 200;
+//    titleButton.height = 30;
+    self.navigationItem.titleView = titleButton;
+    [titleButton addTarget:self action:@selector(titleClick:) forControlEvents:UIControlEventTouchUpInside];
+}
+-(void)setupUserInfo{
+    
+    //请求管理者
+    AFHTTPSessionManager *mgr = [AFHTTPSessionManager manager];
+    //拼接参数
+    WBAccount *account = [WBAccountTool account];
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    params[@"access_token"] = account.access_token;
+    params[@"uid"] = account.uid;
+    [mgr GET:@"https://api.weibo.com/2/users/show.json" parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+      //WBTitleButton *titleButton = (WBTitleButton*)self.navigationItem.titleView;
+        NSString *name = responseObject[@"name"];
+        //[titleButton setTitle:name forState:UIControlStateNormal];
+        //将获得的昵称存入沙盒内
+        account.name = name;
+        [WBAccountTool saveAccount:account];
+        WBLog(@"%@",responseObject);
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        WBLog(@"%@",error);
+    }];
 }
 
 #pragma mark - Table view data source

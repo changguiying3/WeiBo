@@ -7,11 +7,9 @@
 //
 
 #import "AppDelegate.h"
-#import "WBMainController.h"
-#import "WBNewFeatureController.h"
 #import "WBOAuthViewController.h"
 #import "WBAccountTool.h"
-#import "UIWindow+Extension.h"
+
 @interface AppDelegate ()
 
 @end

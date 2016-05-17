@@ -10,7 +10,7 @@
 #import "AFNetworking.h"
 #import "MBProgressHUD.h"
 #import "WBAccountTool.h"
-#import "UIWindow+Extension.h"
+
 @interface WBOAuthViewController ()<UIWebViewDelegate>
 
 @end
@@ -65,6 +65,7 @@
         NSInteger fromIndex = range.location + range.length;
         NSString *code = [url substringFromIndex:fromIndex];
         [self accessTokenWithCode:code];
+        return NO;
     }
     return YES;
 }
@@ -88,8 +89,8 @@
     params[@"redirect_uri"] = @"http://www.baidu.com";
     params[@"code"] = code;
     //发送请求
-    [mgr POST:@"https://api.weibo.com/oauth2/access_token" parameters:params success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        WBLog(@"请求成功－％@",responseObject);
+    [mgr POST:@"https://api.weibo.com/oauth2/access_token" parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        WBLog(@"请求成功--%@",responseObject);
         if (self.view == nil) {
             self.view = [[UIApplication sharedApplication].windows lastObject];
         }
@@ -102,20 +103,13 @@
         UIWindow *window = [UIApplication sharedApplication].keyWindow;
         [window switchRootViewController];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        WBLog(@"请求失败－％@",error);
-        //WBLog(@"请求成功－％@",responseObject);
+        WBLog(@"请求失败--%@",error);
+        
         if (self.view == nil) {
             self.view = [[UIApplication sharedApplication].windows lastObject];
         }
         [MBProgressHUD hideHUDForView:self.view animated:YES];
     }];
-//    [mgr POST:@"https://api.weibo.com/oauth2/access_token" parameters:params progress:^(NSProgress * _Nonnull uploadProgress) {
-//        nil;
-//    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-//        WBLog(@"请求成功－％@",responseObject);
-//    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-//        WBLog(@"请求失败－％@",error);
-//    }];
  }
 /*
 #pragma mark - Navigation
