@@ -90,7 +90,7 @@
     params[@"code"] = code;
     //发送请求
     [mgr POST:@"https://api.weibo.com/oauth2/access_token" parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        WBLog(@"请求成功--%@",responseObject);
+        //WBLog(@"请求成功--%@",responseObject);
         if (self.view == nil) {
             self.view = [[UIApplication sharedApplication].windows lastObject];
         }

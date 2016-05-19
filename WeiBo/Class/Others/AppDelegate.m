@@ -9,6 +9,7 @@
 #import "AppDelegate.h"
 #import "WBOAuthViewController.h"
 #import "WBAccountTool.h"
+#import "SDWebImageManager.h"
 
 @interface AppDelegate ()
 
@@ -51,5 +52,13 @@
 - (void)applicationWillTerminate:(UIApplication *)application {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
-
+/**
+ *  收到内存警告时，清空内存
+ *
+ */
+-(void)applicationDidReceiveMemoryWarning:(UIApplication *)application{
+    SDWebImageManager *mgr = [SDWebImageManager sharedManager];
+    [mgr cancelAll];
+    [mgr.imageCache clearMemory];
+}
 @end
