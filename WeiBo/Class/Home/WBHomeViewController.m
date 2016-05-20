@@ -16,6 +16,7 @@
 #import "WBStatus.h"
 #import "UIImageView+WebCache.h"
 #import "MJExtension.h"
+#import "WBLoadMoreFooter.h"
 
 @interface WBHomeViewController ()<WBDropdownMenuDelegate>
 /**
@@ -25,6 +26,7 @@
 @end
 
 @implementation WBHomeViewController
+
 -(NSMutableArray *)statuses{
     if (!_statuses) {
         self.statuses = [NSMutableArray array];
@@ -37,10 +39,79 @@
     [self setNavigation];
     //获得用户信息
     [self setupUserInfo];
-   //集成刷新控件
-    [self setupRefresh];
+    //集成刷新控件
+    [self setupDownRefresh];
+    //上拉刷新
+    [self setupUpRefresh];
+    //获得未读数
+    NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:60 target:self selector:@selector(setupUnreadCount) userInfo:nil repeats:YES];
+    [[NSRunLoop mainRunLoop]addTimer:timer forMode:NSRunLoopCommonModes];
+}
+-(void)setupUnreadCount{
+    AFHTTPSessionManager *mgr = [AFHTTPSessionManager manager];
+    WBAccount *account = [WBAccountTool account];
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    params[@"access_token"] = account.access_token;
+    params[@"uid"] = account.uid;
+    //发送请求
+    [mgr GET:@"https://rm.api.weibo.com/2/remind/unread_count.json" parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        NSString *status = [responseObject[@"status"] description];
+        if ([status isEqualToString:@"0"]) {
+            self.tabBarItem.badgeValue = nil;
+            float version = [[[UIDevice currentDevice]systemVersion]floatValue];
+            if (version >= 8.0) {
+                UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeBadge categories:nil];
+                [[UIApplication sharedApplication]registerUserNotificationSettings:settings];
+                [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
+            }else{
+                [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
+            }
+        }else{
+            self.tabBarItem.badgeValue = status;
+            float version = [[[UIDevice currentDevice]systemVersion]floatValue];
+            
+            if (version >= 8.0) {
+                UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeBadge categories:nil];
+                [[UIApplication sharedApplication]registerUserNotificationSettings:settings];
+                [UIApplication sharedApplication].applicationIconBadgeNumber = status.intValue;
+                
+            }else{
+                [UIApplication sharedApplication].applicationIconBadgeNumber = status.intValue;
+            }
+        }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        WBLog(@"readCount failure --%@",error);
+    }];
+}
+-(void)setupUpRefresh{
+    WBLoadMoreFooter *footer = [WBLoadMoreFooter footer];
+    footer.hidden = YES;
+    self.tableView.tableFooterView = footer;
+}
+-(void)loadMoreStatus{
+    AFHTTPSessionManager *mgr = [AFHTTPSessionManager manager];
+    WBAccount * account = [WBAccountTool account];
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    params[@"access_token"] = account.access_token;
+    //取出微博的最后一台数据
+     WBStatus *lastStatus = [self.statuses lastObject];
+    if (lastStatus) {
+        long long maxId = lastStatus.idstr.longLongValue - 1;
+        params[@"max_id"] = @(maxId);
     }
--(void)setupRefresh{
+    [mgr GET:@"https://api.weibo.com/2/statuses/friends_timeline.json" parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        //字典转模型
+        NSArray *newStatuses = [WBStatus objectArrayWithKeyValuesArray:responseObject[@"statuses"]];
+        //将更多的微博数据添加到总数组的最后面
+        [self.statuses addObjectsFromArray:newStatuses];
+        [self.tableView reloadData];
+        self.tableView.tableFooterView.hidden = YES;
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        WBLog(@"loadMore failure--%@",error);
+        self.tableView.tableFooterView.hidden = YES;
+    }];
+}
+-(void)setupDownRefresh{
     UIRefreshControl *control = [[UIRefreshControl alloc]init];
     [control addTarget:self action:@selector(refreshStateChange:) forControlEvents:UIControlEventValueChanged];
     [self.tableView addSubview:control];
@@ -83,6 +154,8 @@
  */
 -(void)showNewStatusCount:(NSInteger)count{
     //创建一个label
+    self.tabBarItem.badgeValue = nil;
+    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
     UILabel *label = [[UILabel alloc]init];
     label.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"timeline_new_status_background"]];
     label.width = [UIScreen mainScreen].bounds.size.width;
@@ -91,7 +164,7 @@
     if (count == 0) {
         label.text = @"没有最新的消息，稍后再试";
     }else{
-        label.text = [NSString stringWithFormat:@"共有%ld条新的微博数据",count];
+        label.text = [NSString stringWithFormat:@"%ld条新的微博数据",count];
     }
     label.textColor = [UIColor whiteColor];
     label.textAlignment = NSTextAlignmentCenter;
@@ -203,7 +276,18 @@
     [cell.imageView sd_setImageWithURL:[NSURL URLWithString:user.profile_image_url] placeholderImage:placehoder];
       return cell;
 }
-
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    //tableView没有数据时，直接返回
+    if (self.statuses.count == 0 || self.tableView.tableFooterView.hidden == NO) return;
+    CGFloat offsetY = scrollView.contentOffset.y;
+    //当最后一个cell完全显示在眼前时，contentOffset.y的值
+    CGFloat judgeOffsetY = scrollView.contentSize.height + scrollView.contentInset.bottom - scrollView.height - self.tableView.tableFooterView.height;
+    if (offsetY >= judgeOffsetY) {//最后一个cell完全进入视野范围内
+        self.tableView.tableFooterView.hidden = YES;
+        [self loadMoreStatus];
+    }
+        
+}
 
 /*
 // Override to support conditional editing of the table view.
