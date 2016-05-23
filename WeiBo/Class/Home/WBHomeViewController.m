@@ -17,21 +17,23 @@
 #import "UIImageView+WebCache.h"
 #import "MJExtension.h"
 #import "WBLoadMoreFooter.h"
+#import "WBStatusFrame.h"
+#import "WBStatusCell.h"
 
 @interface WBHomeViewController ()<WBDropdownMenuDelegate>
 /**
  *  微博数组
  */
-@property(nonatomic,strong) NSMutableArray *statuses;
+@property(nonatomic,strong) NSMutableArray *statusFrame;
 @end
 
 @implementation WBHomeViewController
 
--(NSMutableArray *)statuses{
-    if (!_statuses) {
-        self.statuses = [NSMutableArray array];
+-(NSMutableArray *)statusFrame{
+    if (!_statusFrame) {
+        self.statusFrame = [NSMutableArray array];
     }
-    return _statuses;
+    return _statusFrame;
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -94,7 +96,7 @@
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
     params[@"access_token"] = account.access_token;
     //取出微博的最后一台数据
-     WBStatus *lastStatus = [self.statuses lastObject];
+     WBStatus *lastStatus = [self.statusFrame lastObject];
     if (lastStatus) {
         long long maxId = lastStatus.idstr.longLongValue - 1;
         params[@"max_id"] = @(maxId);
@@ -103,7 +105,7 @@
         //字典转模型
         NSArray *newStatuses = [WBStatus objectArrayWithKeyValuesArray:responseObject[@"statuses"]];
         //将更多的微博数据添加到总数组的最后面
-        [self.statuses addObjectsFromArray:newStatuses];
+        [self.statusFrame addObjectsFromArray:newStatuses];
         [self.tableView reloadData];
         self.tableView.tableFooterView.hidden = YES;
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
@@ -126,7 +128,7 @@
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
     params[@"access_token"] = account.access_token;
     //取出第一条微博数据
-    WBStatus *firstStatus = [self.statuses firstObject];
+    WBStatus *firstStatus = [self.statusFrame firstObject];
     if (firstStatus) {
         params[@"since_id"] = firstStatus.idstr;
     }
@@ -138,7 +140,7 @@
         //将最新加载出来的数据加载在数组的最前面
         NSRange range = NSMakeRange(0, newStatuses.count);
         NSIndexSet *set = [NSIndexSet indexSetWithIndexesInRange:range];
-        [self.statuses insertObjects:newStatuses atIndexes:set];
+        [self.statusFrame insertObjects:newStatuses atIndexes:set];
         //刷新列表
         [self.tableView reloadData];
         [control endRefreshing];
@@ -252,20 +254,15 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 
-    return self.statuses.count;
+    return self.statusFrame.count;
 }
 
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    static NSString *ID = @"cell";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
-    if (cell == nil) {
-        cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:ID];
-    }
-    
+    WBStatusCell *cell = [WBStatusCell cellWithTableView:tableView];
     // 取出对应的微博字典
-    WBStatus *status = self.statuses[indexPath.row];
+    WBStatus *status = self.statusFrame[indexPath.row];
     //取出这条微博的作者（用户）
     WBUser *user = status.user;
     cell.textLabel.text = user.name;
@@ -278,7 +275,7 @@
 }
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView{
     //tableView没有数据时，直接返回
-    if (self.statuses.count == 0 || self.tableView.tableFooterView.hidden == NO) return;
+    if (self.statusFrame.count == 0 || self.tableView.tableFooterView.hidden == NO) return;
     CGFloat offsetY = scrollView.contentOffset.y;
     //当最后一个cell完全显示在眼前时，contentOffset.y的值
     CGFloat judgeOffsetY = scrollView.contentSize.height + scrollView.contentInset.bottom - scrollView.height - self.tableView.tableFooterView.height;
