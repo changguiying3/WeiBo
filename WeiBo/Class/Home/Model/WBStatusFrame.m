@@ -42,7 +42,6 @@
         CGFloat vipH = nameSize.height;
         CGFloat vipW = 14;
         self.vipViewF = CGRectMake(vipX, vipY, vipW, vipH);
-        
     }
     /** 时间的frame */
     CGFloat timeX = nameX;
@@ -61,11 +60,20 @@
     CGSize contentSize = [self sizeWithText:status.text font:WBStatusCellContentFont maxW:maxW];
     self.contentLabelF = (CGRect){{contentX,contentY},contentSize};
     /** 配图的frame */
+    CGFloat originalH = 0;
+    if (status.pic_urls.count) {
+        CGFloat photoX = contentX;
+        CGFloat photoY = CGRectGetMaxY(self.contentLabelF) + WBStatusCellBorderW;
+        CGFloat photoWH = 100;
+        self.photoViewF = CGRectMake(photoX, photoY, photoWH, photoWH);
+         originalH = CGRectGetMaxY(self.photoViewF) + WBStatusCellBorderW;
+    }else{
+         originalH = CGRectGetMaxY(self.contentLabelF) + WBStatusCellBorderW;
+    }
     /** 原创微博的frame */
     CGFloat originalX = 0;
     CGFloat originalY = 0;
     CGFloat originalW = cellW;
-    CGFloat originalH = CGRectGetMaxY(self.contentLabelF) + WBStatusCellBorderW;
     self.originalViewF = CGRectMake(originalX, originalY, originalW, originalH);
     self.cellHeight = CGRectGetMaxY(self.originalViewF);
 }

@@ -19,4 +19,6 @@
 @property(nonatomic,copy) NSString *created_at;
 /**	微博的来源*/
 @property(nonatomic,copy) NSString *source;
+/** 微博的配图地址 */
+@property(nonatomic,strong)NSArray *pic_urls;
 @end

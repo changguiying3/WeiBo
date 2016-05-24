@@ -11,6 +11,7 @@
 #import "WBUser.h"
 #import "WBStatusFrame.h"
 #import "UIImageView+WebCache.h"
+#import "WBPhoto.h"
 
 @interface WBStatusCell ()
 /** 原创微博整体 */
@@ -52,26 +53,32 @@
         self.iconView = iconView;
         
         UIImageView *vipView = [[UIImageView alloc]init];
+        vipView.contentMode = UIViewContentModeCenter;
         [originalView addSubview:vipView];
-        self.iconView = vipView;
+        self.vipView = vipView;
         
         UIImageView *photoView = [[UIImageView alloc]init];
         [originalView addSubview:photoView];
-        self.iconView = photoView;
+        self.photoView = photoView;
         
         UILabel *nameLable = [[UILabel alloc]init];
+        nameLable.font = WBStatusCellNameFont;
         [originalView addSubview:nameLable];
         self.nameLabel = nameLable;
         
         UILabel *timeLabel = [[UILabel alloc]init];
+        timeLabel.font = WBStatusCellTimeFont;
         [originalView addSubview:timeLabel];
         self.timeLabel = timeLabel;
         
         UILabel *sourceLabel = [[UILabel alloc]init];
+        sourceLabel.font = WBStatusCellSourceFont;
         [originalView addSubview:sourceLabel];
         self.sourceLabel = sourceLabel;
         
         UILabel *contentLabel = [[UILabel alloc]init];
+        contentLabel.font = WBStatusCellContentFont;
+        contentLabel.numberOfLines = 0;
         [originalView addSubview:contentLabel];
         self.contentLabel = contentLabel;
     }
@@ -91,11 +98,17 @@
         self.vipView.image = [UIImage imageNamed:vipName];
         self.nameLabel.textColor = [UIColor orangeColor];
     }else{
+        self.nameLabel.textColor = [UIColor blackColor];
         self.vipView.hidden = YES;
     }
-    self.photoView.frame = statusFrame.photoViewF;
-    self.photoView.backgroundColor = [UIColor redColor];
-    
+    if (status.pic_urls.count) {
+        self.photoView.frame = statusFrame.photoViewF;
+        WBPhoto *photo = [status.pic_urls firstObject];
+        [self.photoView sd_setImageWithURL:[NSURL URLWithString:photo.thumbnail_pic] placeholderImage:[UIImage imageNamed:@"timeline_image_placeholder"]];
+        self.photoView.hidden = NO;
+    }else{
+        self.photoView.hidden = YES;
+    }
     self.nameLabel.text = user.name;
     self.nameLabel.frame = statusFrame.nameLabelF;
     

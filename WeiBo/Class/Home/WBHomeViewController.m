@@ -49,6 +49,18 @@
     NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:60 target:self selector:@selector(setupUnreadCount) userInfo:nil repeats:YES];
     [[NSRunLoop mainRunLoop]addTimer:timer forMode:NSRunLoopCommonModes];
 }
+/**
+ *  将status模型转换成statusFrame模型
+ */
+-(NSArray *)statusFramesWithStatuses:(NSArray *)statuses{
+    NSMutableArray *frames = [NSMutableArray array];
+    for (WBStatus *status in statuses) {
+        WBStatusFrame *f = [[WBStatusFrame alloc]init];
+        f.status = status;
+        [frames addObject:f];
+    }
+    return frames;
+}
 -(void)setupUnreadCount{
     AFHTTPSessionManager *mgr = [AFHTTPSessionManager manager];
     WBAccount *account = [WBAccountTool account];
@@ -89,6 +101,7 @@
     WBLoadMoreFooter *footer = [WBLoadMoreFooter footer];
     footer.hidden = YES;
     self.tableView.tableFooterView = footer;
+    
 }
 -(void)loadMoreStatus{
     AFHTTPSessionManager *mgr = [AFHTTPSessionManager manager];
@@ -96,16 +109,17 @@
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
     params[@"access_token"] = account.access_token;
     //取出微博的最后一台数据
-     WBStatus *lastStatus = [self.statusFrame lastObject];
+     WBStatusFrame *lastStatus = [self.statusFrame lastObject];
     if (lastStatus) {
-        long long maxId = lastStatus.idstr.longLongValue - 1;
+        long long maxId = lastStatus.status.idstr.longLongValue - 1;
         params[@"max_id"] = @(maxId);
     }
     [mgr GET:@"https://api.weibo.com/2/statuses/friends_timeline.json" parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         //字典转模型
         NSArray *newStatuses = [WBStatus objectArrayWithKeyValuesArray:responseObject[@"statuses"]];
+        NSArray *newFrames = [self statusFramesWithStatuses:newStatuses];
         //将更多的微博数据添加到总数组的最后面
-        [self.statusFrame addObjectsFromArray:newStatuses];
+        [self.statusFrame addObjectsFromArray:newFrames];
         [self.tableView reloadData];
         self.tableView.tableFooterView.hidden = YES;
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
@@ -128,23 +142,24 @@
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
     params[@"access_token"] = account.access_token;
     //取出第一条微博数据
-    WBStatus *firstStatus = [self.statusFrame firstObject];
+    WBStatusFrame *firstStatus = [self.statusFrame firstObject];
     if (firstStatus) {
-        params[@"since_id"] = firstStatus.idstr;
+        params[@"since_id"] = firstStatus.status.idstr;
     }
     //发送请求
     [mgr GET:@"https://api.weibo.com/2/statuses/friends_timeline.json" parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         //WBLog(@"WeiBo-- success%@",responseObject);
         //字典转模型
         NSArray *newStatuses = [WBStatus objectArrayWithKeyValuesArray:responseObject[@"statuses"]];
+        NSArray *newFrames = [self statusFramesWithStatuses:newStatuses];
         //将最新加载出来的数据加载在数组的最前面
-        NSRange range = NSMakeRange(0, newStatuses.count);
+        NSRange range = NSMakeRange(0, newFrames.count);
         NSIndexSet *set = [NSIndexSet indexSetWithIndexesInRange:range];
-        [self.statusFrame insertObjects:newStatuses atIndexes:set];
+        [self.statusFrame insertObjects:newFrames atIndexes:set];
         //刷新列表
         [self.tableView reloadData];
         [control endRefreshing];
-        [self showNewStatusCount:newStatuses.count];
+        [self showNewStatusCount:newFrames.count];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         WBLog(@"WeiBo-- failure%@",error);
         [control endRefreshing];
@@ -261,18 +276,9 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     WBStatusCell *cell = [WBStatusCell cellWithTableView:tableView];
-    // 取出对应的微博字典
-    WBStatus *status = self.statusFrame[indexPath.row];
-    //取出这条微博的作者（用户）
-    WBUser *user = status.user;
-    cell.textLabel.text = user.name;
-    //设置微博的文字
-    cell.detailTextLabel.text = status.text;
-    //设置微博的图片
-    UIImage *placehoder = [UIImage imageNamed:@"avatar_default_small"];
-    [cell.imageView sd_setImageWithURL:[NSURL URLWithString:user.profile_image_url] placeholderImage:placehoder];
-      return cell;
-}
+    cell.statusFrame = self.statusFrame[indexPath.row];
+    return cell;
+    }
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView{
     //tableView没有数据时，直接返回
     if (self.statusFrame.count == 0 || self.tableView.tableFooterView.hidden == NO) return;
@@ -285,7 +291,10 @@
     }
         
 }
-
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    WBStatusFrame *frame = self.statusFrame[indexPath.row];
+    return frame.cellHeight;
+}
 /*
 // Override to support conditional editing of the table view.
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {

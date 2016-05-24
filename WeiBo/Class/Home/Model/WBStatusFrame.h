@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 #define WBStatusCellNameFont [UIFont systemFontOfSize:15]
-#define  WBStatusCellTimeFont [UIFont systemFontOfSize:12]
+#define WBStatusCellTimeFont [UIFont systemFontOfSize:12]
 #define WBStatusCellSourceFont WBStatusCellTimeFont
 #define WBStatusCellContentFont [UIFont systemFontOfSize:14]
 @class WBStatus;
