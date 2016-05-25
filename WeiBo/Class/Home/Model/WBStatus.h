@@ -21,4 +21,6 @@
 @property(nonatomic,copy) NSString *source;
 /** 微博的配图地址 */
 @property(nonatomic,strong)NSArray *pic_urls;
+/** 转发微博的字段 */
+@property(nonatomic,strong) WBStatus *retweeted_status;
 @end

@@ -12,6 +12,7 @@
 #define WBStatusCellTimeFont [UIFont systemFontOfSize:12]
 #define WBStatusCellSourceFont WBStatusCellTimeFont
 #define WBStatusCellContentFont [UIFont systemFontOfSize:14]
+#define WBStatusCellReweetContentFont [UIFont systemFontOfSize:13]
 @class WBStatus;
 @interface WBStatusFrame : NSObject
 @property (nonatomic, strong) WBStatus *status;
@@ -32,7 +33,12 @@
 @property (nonatomic, assign) CGRect sourceLabelF;
 /** 正文 */
 @property (nonatomic, assign) CGRect contentLabelF;
-
+/** 转发微博的整体 */
+@property(nonatomic,assign) CGRect retweetF;
+/** 转发微博的正文*/
+@property(nonatomic,assign) CGRect retweetContentLabelF;
+/** 转发微博的配图*/
+@property(nonatomic,assign) CGRect reweetPhotoF;
 /** cell的高度 */
 @property (nonatomic, assign) CGFloat cellHeight;
 @end
