@@ -12,6 +12,7 @@
 #import "WBStatusFrame.h"
 #import "UIImageView+WebCache.h"
 #import "WBPhoto.h"
+#import "WBStatusToolbar.h"
 
 @interface WBStatusCell ()
 /** 原创微博整体 */
@@ -36,6 +37,8 @@
 @property(nonatomic,weak) UILabel *retweetContentLabel;
 /** 转发微博的配图*/
 @property(nonatomic,weak) UIImageView *reweetPhotoView;
+/** toolbar */
+@property (nonatomic,weak) WBStatusToolbar *toolbar;
 @end
 
 @implementation WBStatusCell
@@ -50,16 +53,31 @@
 -(instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier{
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
+        self.backgroundColor = [UIColor clearColor];
+        //点击cell的时候不要变颜色
+        self.selectionStyle = UITableViewCellEditingStyleNone;
         [self setupOriginal];
         [self setupRetweet];
+        [self setupToolbar];
     }
     return self;
 }
 /**
+ *  init toolbar
+ */
+-(void)setupToolbar{
+    WBStatusToolbar *toolbar = [WBStatusToolbar toolbar];
+    [self.contentView addSubview:toolbar];
+//    toolbar.backgroundColor = [UIColor redColor];
+    self.toolbar = toolbar;
+  }
+/**
  *  初始化原创微博
  */
+
 -(void)setupOriginal{
     UIView *originalView = [[UIView alloc]init];
+    originalView.backgroundColor = [UIColor whiteColor];
     [self.contentView addSubview:originalView];
     self.originalView = originalView;
     
@@ -102,6 +120,7 @@
  */
 -(void)setupRetweet{
     UIView *retweetView = [[UIView alloc]init];
+    retweetView.backgroundColor = WBColor(247, 247, 247);
     [self.contentView addSubview:retweetView];
     self.retweetView = retweetView;
     
@@ -142,12 +161,20 @@
     }
     self.nameLabel.text = user.name;
     self.nameLabel.frame = statusFrame.nameLabelF;
-    
-    self.timeLabel.text = status.created_at;
-    self.timeLabel.frame = statusFrame.timeLabelF;
-    
+    /**时间*/
+    NSString *time = status.created_at;
+    CGFloat timeX = statusFrame.nameLabelF.origin.x;
+    CGFloat timeY = CGRectGetMaxY(statusFrame.nameLabelF) + WBstatusCellBorderW;
+    CGSize timeSize = [time sizeWithFont:WBStatusCellTimeFont];
+    self.timeLabel.text = time;
+    self.timeLabel.frame = (CGRect){{timeX,timeY},timeSize};
+    /** 来源*/
+    CGFloat sourceX = CGRectGetMaxX(self.timeLabel.frame) + WBstatusCellBorderW;
+    CGFloat sourceY = timeY;
+    CGSize sourceSize = [status.source sizeWithFont:WBStatusCellSourceFont];
     self.sourceLabel.text = status.source;
-    self.sourceLabel.frame = statusFrame.sourceLabelF;
+    self.sourceLabel.frame = (CGRect){{sourceX,sourceY},sourceSize};
+    //self.sourceLabel.frame = statusFrame.sourceLabelF;
     
     self.contentLabel.text = status.text;
     self.contentLabel.frame = statusFrame.contentLabelF;
@@ -163,7 +190,7 @@
         self.retweetContentLabel.text = retweetedContent;
         self.retweetContentLabel.frame = statusFrame.retweetContentLabelF;
         if (retweeted_status.pic_urls.count) {
-            self.reweetPhotoView.frame = statusFrame.retweetF;
+            self.reweetPhotoView.frame = statusFrame.reweetPhotoF;
             WBPhoto *retweetPhoto = [retweeted_status.pic_urls firstObject];
             [self.reweetPhotoView sd_setImageWithURL:[NSURL URLWithString:retweetPhoto.thumbnail_pic] placeholderImage:[UIImage imageNamed:@"timeline_image_placeholder"]];
             self.reweetPhotoView.hidden = NO;
@@ -173,6 +200,9 @@
     }else{
         self.retweetView.hidden = YES;
     }
-    
+   /** toolbar*/
+    self.toolbar.frame = statusFrame.toolbarF;
+    self.toolbar.status = status;
 }
+
 @end

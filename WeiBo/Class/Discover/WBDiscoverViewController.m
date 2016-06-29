@@ -8,6 +8,7 @@
 
 #import "WBDiscoverViewController.h"
 #import "WBSearchBar.h"
+
 @interface WBDiscoverViewController ()
 
 @end

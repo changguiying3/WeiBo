@@ -23,4 +23,10 @@
 @property(nonatomic,strong)NSArray *pic_urls;
 /** 转发微博的字段 */
 @property(nonatomic,strong) WBStatus *retweeted_status;
+/** retweet count*/
+@property (nonatomic,assign) NSUInteger reposts_count;
+/** reweet 评论*/
+@property (nonatomic,assign) NSUInteger comments_count;;
+/** attitude count*/
+@property (nonatomic,assign) NSUInteger attitudes_count;
 @end

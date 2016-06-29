@@ -13,6 +13,10 @@
 #define WBStatusCellSourceFont WBStatusCellTimeFont
 #define WBStatusCellContentFont [UIFont systemFontOfSize:14]
 #define WBStatusCellReweetContentFont [UIFont systemFontOfSize:13]
+//cell之间的间距
+#define WBstatusCellMargin 15
+//cell的边框宽度
+#define WBstatusCellBorderW 10
 @class WBStatus;
 @interface WBStatusFrame : NSObject
 @property (nonatomic, strong) WBStatus *status;
@@ -41,4 +45,6 @@
 @property(nonatomic,assign) CGRect reweetPhotoF;
 /** cell的高度 */
 @property (nonatomic, assign) CGFloat cellHeight;
+/** 底部工具条*/
+@property (nonatomic,assign) CGRect toolbarF;
 @end

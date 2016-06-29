@@ -37,6 +37,7 @@
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.tableView.backgroundColor = WBColor(211, 211, 211);
     //设置导航栏
     [self setNavigation];
     //获得用户信息
