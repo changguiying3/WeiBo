@@ -13,6 +13,7 @@
 #import "WBProfileViewController.h"
 #import "WBNavigationController.h"
 #import "WBTabBar.h"
+#import "WBComposeViewController.h"
 @interface WBMainController ()<WBTabBarDelegate>
 
 @end
@@ -63,8 +64,9 @@
     [self addChildViewController:nav];
 }
 -(void)tabBarDidClickPlusButton:(WBTabBar *)tabbar{
-    UIViewController *vc = [[UIViewController alloc]init];
-    vc.view.backgroundColor = [UIColor redColor];
-    [self presentViewController:vc animated:YES completion:nil];
+    WBComposeViewController *compose = [[WBComposeViewController alloc]init];
+    WBNavigationController *nav = [[WBNavigationController alloc]initWithRootViewController:compose];
+    //compose.view.backgroundColor = [UIColor redColor];
+    [self presentViewController:nav animated:YES completion:nil];
 }
 @end

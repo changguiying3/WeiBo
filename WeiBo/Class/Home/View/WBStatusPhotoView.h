@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-
-@interface WBStatusPhotoView : UIView
-
+@class WBPhoto;
+@interface WBStatusPhotoView : UIImageView
+@property (nonatomic,strong) WBPhoto *photo;
 @end

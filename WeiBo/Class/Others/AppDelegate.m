@@ -37,7 +37,7 @@
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-    UIBackgroundTaskIdentifier task = [application beginBackgroundTaskWithExpirationHandler:^{
+   __block UIBackgroundTaskIdentifier task = [application beginBackgroundTaskWithExpirationHandler:^{
         //当申请的时间过期后，调用这个block
         [application endBackgroundTask:task];
     }];

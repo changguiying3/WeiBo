@@ -9,6 +9,7 @@
 #import "WBStatusFrame.h"
 #import "WBStatus.h"
 #import "WBUser.h"
+#import "WBStatusPhotosView.h"
 
 #define WBStatusCellBorderW 10
 @implementation WBStatusFrame
@@ -65,9 +66,9 @@
     if (status.pic_urls.count) {
         CGFloat photoX = contentX;
         CGFloat photoY = CGRectGetMaxY(self.contentLabelF) + WBStatusCellBorderW;
-        CGFloat photoWH = 100;
-        self.photoViewF = CGRectMake(photoX, photoY, photoWH, photoWH);
-         originalH = CGRectGetMaxY(self.photoViewF) + WBStatusCellBorderW;
+        CGSize photosSize = [WBStatusPhotosView sizeWithCount:status.pic_urls.count];
+        self.photosViewF = (CGRect){{photoX,photoY},photosSize};
+        originalH = CGRectGetMaxY(self.photosViewF) + WBStatusCellBorderW;
     }else{
          originalH = CGRectGetMaxY(self.contentLabelF) + WBStatusCellBorderW;
     }
@@ -91,8 +92,8 @@
         if (reweeted_status.pic_urls.count) {
             CGFloat retweetPhotoX = retweetContentX;
             CGFloat retweetPhotoY = CGRectGetMaxY(self.retweetContentLabelF) + WBStatusCellBorderW;
-            CGFloat retweetPhotoWH = 100;
-            self.reweetPhotoF = CGRectMake(retweetPhotoX, retweetPhotoY, retweetPhotoWH, retweetPhotoWH);
+            CGSize retweetPhotoSize = [WBStatusPhotosView sizeWithCount:reweeted_status.pic_urls.count];
+            self.reweetPhotoF = (CGRect){{retweetPhotoX, retweetPhotoY}, retweetPhotoSize};
             retweetH = CGRectGetMaxY(self.reweetPhotoF) + WBStatusCellBorderW;
         }else{
             retweetH = CGRectGetMaxY(self.retweetContentLabelF) + WBStatusCellBorderW;

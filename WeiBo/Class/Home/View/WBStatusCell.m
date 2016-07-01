@@ -10,19 +10,20 @@
 #import "WBStatus.h"
 #import "WBUser.h"
 #import "WBStatusFrame.h"
-#import "UIImageView+WebCache.h"
 #import "WBPhoto.h"
 #import "WBStatusToolbar.h"
-
+#import "WBStatusPhotosView.h"
+#import "UIImageView+WebCache.h"
+#import "WBIconView.h"
 @interface WBStatusCell ()
 /** 原创微博整体 */
 @property (nonatomic, weak) UIView *originalView;
 /** 头像 */
-@property (nonatomic, weak) UIImageView *iconView;
+@property (nonatomic, weak) WBIconView *iconView;
 /** 会员图标 */
 @property (nonatomic, weak) UIImageView *vipView;
 /** 配图 */
-@property (nonatomic, weak) UIImageView *photoView;
+@property (nonatomic, weak) WBStatusPhotosView *photosView;
 /** 昵称 */
 @property (nonatomic, weak) UILabel *nameLabel;
 /** 时间 */
@@ -36,7 +37,7 @@
 /** 转发微博的正文*/
 @property(nonatomic,weak) UILabel *retweetContentLabel;
 /** 转发微博的配图*/
-@property(nonatomic,weak) UIImageView *reweetPhotoView;
+@property(nonatomic,weak) WBStatusPhotosView *reweetPhotosView;
 /** toolbar */
 @property (nonatomic,weak) WBStatusToolbar *toolbar;
 @end
@@ -81,7 +82,7 @@
     [self.contentView addSubview:originalView];
     self.originalView = originalView;
     
-    UIImageView *iconView = [[UIImageView alloc]init];
+    WBIconView *iconView = [[WBIconView alloc]init];
     [originalView addSubview:iconView];
     self.iconView = iconView;
     
@@ -90,9 +91,9 @@
     [originalView addSubview:vipView];
     self.vipView = vipView;
     
-    UIImageView *photoView = [[UIImageView alloc]init];
-    [originalView addSubview:photoView];
-    self.photoView = photoView;
+    WBStatusPhotosView *photosView = [[WBStatusPhotosView alloc]init];
+    [originalView addSubview:photosView];
+    self.photosView = photosView;
     
     UILabel *nameLable = [[UILabel alloc]init];
     nameLable.font = WBStatusCellNameFont;
@@ -130,9 +131,9 @@
     [retweetView addSubview:retweetContentLabel];
     self.retweetContentLabel = retweetContentLabel;
     
-    UIImageView *reweetPhotoView = [[UIImageView alloc]init];
-    [retweetView addSubview:reweetPhotoView];
-    self.reweetPhotoView = reweetPhotoView;
+    WBStatusPhotosView *reweetPhotosView = [[WBStatusPhotosView alloc]init];
+    [retweetView addSubview:reweetPhotosView];
+    self.reweetPhotosView = reweetPhotosView;
 }
 -(void)setStatusFrame:(WBStatusFrame *)statusFrame{
     _statusFrame = statusFrame;
@@ -140,7 +141,8 @@
     WBUser *user = status.user;
     self.originalView.frame = statusFrame.originalViewF;
     self.iconView.frame = statusFrame.iconViewF;
-    [self.iconView sd_setImageWithURL:[NSURL URLWithString:user.profile_image_url] placeholderImage:[UIImage imageNamed:@"avatar_default_small"]];
+    self.iconView.user = user;
+//    [self.iconView sd_setImageWithURL:[NSURL URLWithString:user.profile_image_url] placeholderImage:[UIImage imageNamed:@"avatar_default_small"]];
     if (user.isVip) {
         self.vipView.hidden = NO;
         self.vipView.frame = statusFrame.vipViewF;
@@ -152,12 +154,11 @@
         self.vipView.hidden = YES;
     }
     if (status.pic_urls.count) {
-        self.photoView.frame = statusFrame.photoViewF;
-        WBPhoto *photo = [status.pic_urls firstObject];
-        [self.photoView sd_setImageWithURL:[NSURL URLWithString:photo.thumbnail_pic] placeholderImage:[UIImage imageNamed:@"timeline_image_placeholder"]];
-        self.photoView.hidden = NO;
+        self.photosView.frame = statusFrame.photosViewF;
+        self.photosView.photos = status.pic_urls;
+        self.photosView.hidden = NO;
     }else{
-        self.photoView.hidden = YES;
+      self.photosView.hidden = YES;
     }
     self.nameLabel.text = user.name;
     self.nameLabel.frame = statusFrame.nameLabelF;
@@ -190,12 +191,12 @@
         self.retweetContentLabel.text = retweetedContent;
         self.retweetContentLabel.frame = statusFrame.retweetContentLabelF;
         if (retweeted_status.pic_urls.count) {
-            self.reweetPhotoView.frame = statusFrame.reweetPhotoF;
-            WBPhoto *retweetPhoto = [retweeted_status.pic_urls firstObject];
-            [self.reweetPhotoView sd_setImageWithURL:[NSURL URLWithString:retweetPhoto.thumbnail_pic] placeholderImage:[UIImage imageNamed:@"timeline_image_placeholder"]];
-            self.reweetPhotoView.hidden = NO;
+            self.reweetPhotosView.frame = statusFrame.reweetPhotoF;
+            //WBPhoto *retweetPhoto = [retweeted_status.pic_urls firstObject];
+            self.reweetPhotosView.photos = retweeted_status.pic_urls;
+            self.reweetPhotosView.hidden = NO;
         }else{
-            self.reweetPhotoView.hidden = YES;
+            self.reweetPhotosView.hidden = YES;
         }
     }else{
         self.retweetView.hidden = YES;
