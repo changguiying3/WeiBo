@@ -9,10 +9,18 @@
 #import "WBComposeViewController.h"
 #import "WBAccountTool.h"
 #import "WBTextView.h"
+#import "WBComposeToolbar.h"
 
-@interface WBComposeViewController ()<UITextViewDelegate>
+@interface WBComposeViewController ()<UITextViewDelegate,WBComposeToolbarDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 /** 输入控件 */
 @property (nonatomic,weak) WBTextView *textView;
+/** 输入键盘顶部的工具条 */
+@property (nonatomic,weak) WBComposeToolbar *toolbar;
+/** 表情键盘 */
+//@property(nonatomic,strong)
+/** 是否正在切换键盘*/
+@property (nonatomic,assign) BOOL switchingKeyboard;
+ 
 @end
 @implementation WBComposeViewController
 -(void)viewDidLoad{
@@ -20,6 +28,7 @@
     self.view.backgroundColor = [UIColor whiteColor];
     [self setupNav];
     [self setupTextView];
+    [self setupToolbar];
  }
 -(void)setupNav{
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"取消" style:UIBarButtonItemStyleDone target:self action:@selector(cancel)];
@@ -72,13 +81,70 @@
     
 }
 /**
+ *  添加工具条
+ *
+ */
+- (void)setupToolbar{
+    WBComposeToolbar *toolbar  = [[WBComposeToolbar alloc]init];
+    toolbar.width = self.view.width;
+    toolbar.height = 44;
+    toolbar.y = self.view.height -toolbar.height;
+    toolbar.delegate = self;
+    [self.view addSubview:toolbar];
+    self.toolbar = toolbar;
+}
+/**
  *  监听文字改变
  */
 -(void)textDidChange{
     self.navigationItem.rightBarButtonItem.enabled = self.textView.hasText;
 }
+-(void)openCamera{
+    [self openImagePickerController:UIImagePickerControllerSourceTypeCamera];
+}
+-(void)openAlbum{
+    [self openImagePickerController:UIImagePickerControllerSourceTypePhotoLibrary];
+}
+-(void)openImagePickerController:(UIImagePickerControllerSourceType)type{
+    if (![UIImagePickerController isSourceTypeAvailable:type]) return;
+    UIImagePickerController *ipc = [[UIImagePickerController alloc]init];
+    ipc.sourceType = type;
+    ipc.delegate = self;
+    [self presentViewController:ipc animated:YES completion:nil];
+        }
+/**
+ *  切换键盘
+ */
+- (void)switchKeyboard{
+//    if (self.textView.inputView == nil) {
+//        
+//    }
+    //开始切换键盘
+    self.toolbar.showKeyboardButton = YES;
+    self.switchingKeyboard = YES;
+}
 #pragma mark - UITextViewDelegate
 //-(void)scrollViewWillBeginDragging:(UIScrollView *)scrollView{
 //    [self.view endEditing:YES];
 //}
+#pragma mark - WBComposeToolbarDelegate
+-(void)composeToolbar:(WBComposeToolbar *)toolbar didClickButton:(WBComposeToolbarButtonType)buttonType{
+    switch (buttonType) {
+        case WBComposeToolbarButtonTypeCamera:
+            [self openCamera];
+            break;
+        case WBComposeToolbarButtonTypePicture:
+            [self openAlbum];
+            break;
+        case WBComposeToolbarButtonTypeEmotion://表情／键盘
+            [self switchingKeyboard];
+            break;
+        case WBComposeToolbarButtonTypeTrend:
+            WBLog(@"----#");
+            break;
+        case WBComposeToolbarButtonTypeMention:
+            WBLog(@"----@");
+            break;
+    }
+}
 @end
