@@ -206,6 +206,7 @@
     // 1.判断真实性
     NSString *desc = [NSString stringWithFormat:@"keyValuesArray is not a keyValuesArray - keyValuesArray不是一个数组, keyValuesArray is a %@ - keyValuesArray参数是一个%@", keyValuesArray.class, keyValuesArray.class];
     MJAssert2([keyValuesArray isKindOfClass:[NSArray class]], desc, nil);
+//    WBLog(@"keyValuesArray1－－－－－－－－－－－－－－－--%@",keyValuesArray);
     
     // 2.创建数组
     NSMutableArray *modelArray = [NSMutableArray array];
@@ -213,13 +214,16 @@
     // 3.遍历
     for (NSDictionary *keyValues in keyValuesArray) {
         if (![keyValues isKindOfClass:[NSDictionary class]]) continue;
-        
+//        WBLog(@"keyValues－－－－－－－－---%@",keyValues);
+//        WBLog(@"keyValues2－－－－－－－－－－－－--%@",keyValuesArray);
         id model = [self objectWithKeyValues:keyValues];
+//        WBLog(@"model－－－－－－－－－－－－－－－－－---%@",model);
         [modelArray addObject:model];
+//        WBLog(@"modelArray------------------------------------%@",modelArray);
     }
-    
+//    WBLog(@"modelArray22222------------------------------------%@",modelArray);
     return modelArray;
-}
+ }
 
 /**
  *  通过plist来创建一个模型数组

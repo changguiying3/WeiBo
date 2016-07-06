@@ -10,6 +10,7 @@
 #import "WBAccountTool.h"
 #import "WBTextView.h"
 #import "WBComposeToolbar.h"
+#import "WBEmotionKeyboard.h"
 
 @interface WBComposeViewController ()<UITextViewDelegate,WBComposeToolbarDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 /** 输入控件 */
@@ -17,12 +18,22 @@
 /** 输入键盘顶部的工具条 */
 @property (nonatomic,weak) WBComposeToolbar *toolbar;
 /** 表情键盘 */
-//@property(nonatomic,strong)
+//一定要用strong
+@property(nonatomic,strong) WBEmotionKeyboard *emotionKeyboard;
 /** 是否正在切换键盘*/
 @property (nonatomic,assign) BOOL switchingKeyboard;
  
 @end
 @implementation WBComposeViewController
+-(WBEmotionKeyboard *)emotionKeyboard{
+    if (!_emotionKeyboard) {
+        self.emotionKeyboard = [[WBEmotionKeyboard alloc]init];
+        //键盘的宽度
+        self.emotionKeyboard.width = self.view.width;
+        self.emotionKeyboard.height = 216;
+    }
+    return _emotionKeyboard;
+}
 -(void)viewDidLoad{
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
@@ -30,6 +41,13 @@
     [self setupTextView];
     [self setupToolbar];
  }
+-(void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    [self.textView becomeFirstResponder];
+}
+-(void)dealloc{
+    [[NSNotificationCenter defaultCenter]removeObserver:self];
+}
 -(void)setupNav{
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"取消" style:UIBarButtonItemStyleDone target:self action:@selector(cancel)];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"发送" style:UIBarButtonItemStyleDone target:self action:@selector(send)];
@@ -78,8 +96,29 @@
     self.textView = textView;
     //文字改变的通知
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChange) name:UITextViewTextDidChangeNotification object:textView];
+    // 键盘改变时，发出的通知
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
     
 }
+/**
+ *  键盘的frame发生改变时进行调用
+ */
+- (void)keyboardWillChangeFrame:(NSNotification *)notification{
+    if (self.switchingKeyboard) return;
+    NSDictionary *userInfo = notification.userInfo;
+    //动画的持续时间
+    double duration = [userInfo[UIKeyboardAnimationDurationUserInfoKey]doubleValue];
+    //键盘的frame
+    CGRect keyboardF = [userInfo[UIKeyboardFrameEndUserInfoKey]CGRectValue];
+    //执行动画
+    [UIView animateWithDuration:duration animations:^{
+        if (keyboardF.origin.y > self.view.height) {
+            self.toolbar.y = self.view.height - self.toolbar.height;
+        }else{
+            self.toolbar.y = keyboardF.origin.y - self.toolbar.height;
+        }
+    }];
+    }
 /**
  *  添加工具条
  *
@@ -116,17 +155,29 @@
  *  切换键盘
  */
 - (void)switchKeyboard{
-//    if (self.textView.inputView == nil) {
-//        
-//    }
+    if (self.textView.inputView == nil) {
+        self.textView.inputView = self.emotionKeyboard;
+        //显示键盘按钮
+        self.toolbar.showKeyboardButton = YES;
+    }else{
+        self.textView.inputView = nil;
+        self.toolbar.showKeyboardButton = NO;
+    }
     //开始切换键盘
-    self.toolbar.showKeyboardButton = YES;
-    self.switchingKeyboard = YES;
+        self.switchingKeyboard = YES;
+    //退出键盘
+    [self.textView endEditing:YES];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self.textView becomeFirstResponder];
+        //结束切换键盘
+        self.switchingKeyboard = NO;
+    });
+    
 }
 #pragma mark - UITextViewDelegate
-//-(void)scrollViewWillBeginDragging:(UIScrollView *)scrollView{
-//    [self.view endEditing:YES];
-//}
+-(void)scrollViewWillBeginDragging:(UIScrollView *)scrollView{
+    [self.view endEditing:YES];
+}
 #pragma mark - WBComposeToolbarDelegate
 -(void)composeToolbar:(WBComposeToolbar *)toolbar didClickButton:(WBComposeToolbarButtonType)buttonType{
     switch (buttonType) {
@@ -137,7 +188,7 @@
             [self openAlbum];
             break;
         case WBComposeToolbarButtonTypeEmotion://表情／键盘
-            [self switchingKeyboard];
+            [self switchKeyboard];
             break;
         case WBComposeToolbarButtonTypeTrend:
             WBLog(@"----#");
