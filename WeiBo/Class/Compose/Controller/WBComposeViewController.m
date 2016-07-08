@@ -8,13 +8,18 @@
 
 #import "WBComposeViewController.h"
 #import "WBAccountTool.h"
-#import "WBTextView.h"
+#import "WBEmotionTextView.h"
 #import "WBComposeToolbar.h"
 #import "WBEmotionKeyboard.h"
+#import "WBComposePhotosView.h"
+#import "AFNetworking.h"
+#import "MBProgressHUD+MJ.h"
+#import "WBEmotion.h"
+
 
 @interface WBComposeViewController ()<UITextViewDelegate,WBComposeToolbarDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 /** 输入控件 */
-@property (nonatomic,weak) WBTextView *textView;
+@property (nonatomic,weak) WBEmotionTextView *textView;
 /** 输入键盘顶部的工具条 */
 @property (nonatomic,weak) WBComposeToolbar *toolbar;
 /** 表情键盘 */
@@ -22,6 +27,8 @@
 @property(nonatomic,strong) WBEmotionKeyboard *emotionKeyboard;
 /** 是否正在切换键盘*/
 @property (nonatomic,assign) BOOL switchingKeyboard;
+/** 相册 */
+@property (nonatomic,weak) WBComposePhotosView *photosView;
  
 @end
 @implementation WBComposeViewController
@@ -40,6 +47,7 @@
     [self setupNav];
     [self setupTextView];
     [self setupToolbar];
+    [self setupPhotosView];
  }
 -(void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
@@ -47,6 +55,17 @@
 }
 -(void)dealloc{
     [[NSNotificationCenter defaultCenter]removeObserver:self];
+}
+/**
+ *  添加相册
+ */
+- (void)setupPhotosView{
+    WBComposePhotosView *photoView = [[WBComposePhotosView alloc]init];
+    photoView.y = 100;
+    photoView.width = self.view.width;
+    photoView.height = self.view.height;
+    [self.textView addSubview:photoView];
+    self.photosView = photoView;
 }
 -(void)setupNav{
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc]initWithTitle:@"取消" style:UIBarButtonItemStyleDone target:self action:@selector(cancel)];
@@ -74,10 +93,51 @@
         self.title = prefix;
     }
 }
+/**
+ *  发带有图片的微博
+ */
+-(void)sendWithImage{
+    // URL: https://upload.api.weibo.com/2/statuses/upload.json
+    AFHTTPSessionManager *mgr = [AFHTTPSessionManager manager];
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    params[@"access_token"] = [WBAccountTool account].access_token;
+    params[@"status"] = self.textView.fullText;
+    //发送请求
+    [mgr POST:@"https://upload.api.weibo.com/2/statuses/upload.json" parameters:params constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+        //拼接文件数据
+        UIImage *image = [self.photosView.photos firstObject];
+        NSData *data = UIImageJPEGRepresentation(image, 1.0);
+        [formData appendPartWithFileData:data name:@"pic" fileName:@"test.jpg" mimeType:@"image/jpeg"];
+    } progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        [MBProgressHUD showSuccess:@"发送成功"];
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        [MBProgressHUD showError:@"发送失败"];
+    }];
+}
+/**
+ *  发不带有图片的微博
+ */
+-(void)sendWithoutImage{
+    // URL: https://api.weibo.com/2/statuses/update.json
+    AFHTTPSessionManager *mgr = [AFHTTPSessionManager manager];
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    params[@"access_token"] = [WBAccountTool account].access_token;
+    params[@"status"] = self.textView.fullText;
+    [mgr POST:@"https://api.weibo.com/2/statuses/update.json" parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        [MBProgressHUD showSuccess:@"发送成功"];
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        [MBProgressHUD showError:@"发送失败"];
+    }];
+}
 -(void)cancel{
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 -(void)send{
+    if (self.photosView.photos.count) {
+        [self sendWithImage];
+    }else{
+        [self sendWithoutImage];
+    }
     [self dismissViewControllerAnimated:YES completion:nil];
    }
 /**
@@ -85,7 +145,7 @@
  */
 -(void)setupTextView{
     //因为是导航控制器的跟控制器，所以contentInset.top默认等于64
-    WBTextView *textView = [[WBTextView alloc]init];
+    WBEmotionTextView *textView = [[WBEmotionTextView alloc]init];
     //使它上下有弹簧效果，可以拖拽
     textView.alwaysBounceVertical = YES;
     textView.frame = self.view.bounds;
@@ -98,7 +158,16 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChange) name:UITextViewTextDidChangeNotification object:textView];
     // 键盘改变时，发出的通知
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
+    //选中表情时的通知
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(emotionDidSelect:) name:WBEmotionDidSelectNotification object:nil];
     
+}
+/**
+ *  表情被选中
+ */
+-(void)emotionDidSelect:(NSNotification *)notification{
+    WBEmotion *emotion = notification.userInfo[WBSelectEmotionKey];
+    [self.textView insertEmotion:emotion];
 }
 /**
  *  键盘的frame发生改变时进行调用
@@ -197,5 +266,13 @@
             WBLog(@"----@");
             break;
     }
+}
+#pragma mark- UIImagePickerControllerDelegate
+-(void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info{
+    [picker dismissViewControllerAnimated:YES completion:nil];
+    UIImage *image = info[UIImagePickerControllerOriginalImage];
+    [self.photosView addPhoto:image];
+    
+    
 }
 @end

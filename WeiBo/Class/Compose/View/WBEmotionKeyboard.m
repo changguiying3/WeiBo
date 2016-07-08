@@ -36,7 +36,6 @@
         NSString *path = [[NSBundle mainBundle]pathForResource:@"default.info.plist" ofType:nil];
         self.defaultListView.emotions = [WBEmotion objectArrayWithKeyValuesArray:[NSArray arrayWithContentsOfFile:path]];
     }
-    WBLog(@"%@",_defaultListView);
     return _defaultListView;
 }
 -(WBEmotionListView *)emojiListView{
