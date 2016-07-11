@@ -19,6 +19,7 @@
 #import "WBLoadMoreFooter.h"
 #import "WBStatusFrame.h"
 #import "WBStatusCell.h"
+#import "MJRefresh.h"
 
 @interface WBHomeViewController ()<WBDropdownMenuDelegate>
 /**
@@ -129,15 +130,12 @@
     }];
 }
 -(void)setupDownRefresh{
-    UIRefreshControl *control = [[UIRefreshControl alloc]init];
-    [control addTarget:self action:@selector(refreshStateChange:) forControlEvents:UIControlEventValueChanged];
-    [self.tableView addSubview:control];
-    //自动刷新
-    [control beginRefreshing];
-    //自动调用方法，刷新数据
-    [self refreshStateChange:control];
+    //添加刷新控件
+    [self.tableView addHeaderWithTarget:self action:@selector(refreshStateChange)];
+    //进入刷新状态
+    [self.tableView headerBeginRefreshing];
 }
--(void)refreshStateChange:(UIRefreshControl *)control{
+-(void)refreshStateChange{
     AFHTTPSessionManager *mgr = [AFHTTPSessionManager manager];
     WBAccount *account = [WBAccountTool account];
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
@@ -159,12 +157,12 @@
         [self.statusFrame insertObjects:newFrames atIndexes:set];
         //刷新列表
         [self.tableView reloadData];
-        [control endRefreshing];
+        [self.tableView headerEndRefreshing];
         [self showNewStatusCount:newFrames.count];
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         WBLog(@"WeiBo-- failure%@",error);
-        [control endRefreshing];
-    }];
+        [self.tableView headerEndRefreshing];
+            }];
     //WBLog(@"Loading success----");
 }
 /**

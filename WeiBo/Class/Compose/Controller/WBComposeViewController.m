@@ -160,7 +160,13 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
     //选中表情时的通知
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(emotionDidSelect:) name:WBEmotionDidSelectNotification object:nil];
+    //删除文字的通知
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(emotionDidDelete) name:WBEmotionDidDeleteNotification object:nil];
     
+}
+#pragma mark - 监听方法
+-(void)emotionDidDelete{
+    [self.textView deleteBackward];
 }
 /**
  *  表情被选中
@@ -236,10 +242,11 @@
         self.switchingKeyboard = YES;
     //退出键盘
     [self.textView endEditing:YES];
+    //结束切换键盘
+    self.switchingKeyboard = NO;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self.textView becomeFirstResponder];
-        //结束切换键盘
-        self.switchingKeyboard = NO;
+       
     });
     
 }

@@ -45,7 +45,7 @@
     hud.removeFromSuperViewOnHide = YES;
     }
 -(void)webViewDidFinishLoad:(UIWebView *)webView{
-    WBLog(@"webViewFinishLoad");
+    //WBLog(@"webViewFinishLoad");
     if (self.view == nil) {
         self.view = [[UIApplication sharedApplication].windows lastObject];
     }

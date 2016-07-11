@@ -11,6 +11,7 @@
 #import "WBEmotionListView.h"
 #import "WBEmotion.h"
 #import "MJExtension.h"
+#import "WBEmotionTool.h"
 
 @interface WBEmotionKeyboard ()<WBEmotionTabBarDelegate>
 /** tabbar */
@@ -27,6 +28,8 @@
 -(WBEmotionListView *)recentListView{
     if (!_recentListView) {
         self.recentListView = [[WBEmotionListView alloc]init];
+        //加载沙盒中的数据
+        self.recentListView.emotions = [WBEmotionTool recentEmotions];
     }
     return _recentListView;
 }
@@ -64,8 +67,16 @@
         tabBar.delegate = self;
         [self addSubview:tabBar];
         self.tabBar = tabBar;
+        //表情选中的通知
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(emotionDidSelect) name:WBEmotionDidSelectNotification object:nil];
     }
     return self;
+}
+-(void)emotionDidSelect{
+    self.recentListView.emotions = [WBEmotionTool recentEmotions];
+}
+-(void)dealloc{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 -(void)layoutSubviews{
     [super layoutSubviews];
