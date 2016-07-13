@@ -59,7 +59,8 @@
     CGFloat contentX = iconX;
     CGFloat contentY = MAX(CGRectGetMaxY(self.iconViewF), CGRectGetMaxY(self.timeLabelF)) + WBStatusCellBorderW;
     CGFloat maxW = cellW - 2 * contentX;
-    CGSize contentSize = [status.text sizeWithFont:WBStatusCellContentFont maxW:maxW];
+// CGSize contentSize = [status.text sizeWithFont:WBStatusCellContentFont maxW:maxW];
+    CGSize contentSize = [status.attributedText boundingRectWithSize:CGSizeMake(maxW, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin context:nil].size;
     self.contentLabelF = (CGRect){{contentX,contentY},contentSize};
     /** 配图的frame */
     CGFloat originalH = 0;
@@ -83,10 +84,12 @@
     if (status.retweeted_status) {
         WBStatus *reweeted_status = status.retweeted_status;
         WBUser *reweeted_user = reweeted_status.user;
+        //转发正文
         CGFloat retweetContentX = WBStatusCellBorderW;
         CGFloat retweetContentY = WBStatusCellBorderW;
-        NSString *retweetContent = [NSString stringWithFormat:@"@%@ : %@",reweeted_user.name,reweeted_status.text];
-        CGSize retweetContentSize = [retweetContent sizeWithFont:WBStatusCellReweetContentFont maxW:maxW];
+//        NSString *retweetContent = [NSString stringWithFormat:@"@%@ : %@",reweeted_user.name,reweeted_status.text];
+//        CGSize retweetContentSize = [retweetContent sizeWithFont:WBStatusCellReweetContentFont maxW:maxW];
+        CGSize retweetContentSize = [status.retweetedAttributedText boundingRectWithSize:CGSizeMake(maxW, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin context:nil].size;
         self.retweetContentLabelF = (CGRect){{retweetContentX, retweetContentY}, retweetContentSize};
         CGFloat retweetH = 0;
         if (reweeted_status.pic_urls.count) {

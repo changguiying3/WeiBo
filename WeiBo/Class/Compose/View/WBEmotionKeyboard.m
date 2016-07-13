@@ -36,25 +36,21 @@
 -(WBEmotionListView *)defaultListView{
     if (!_defaultListView) {
         self.defaultListView = [[WBEmotionListView alloc]init];
-        NSString *path = [[NSBundle mainBundle]pathForResource:@"default.info.plist" ofType:nil];
-        self.defaultListView.emotions = [WBEmotion objectArrayWithKeyValuesArray:[NSArray arrayWithContentsOfFile:path]];
+        self.defaultListView.emotions = [WBEmotionTool defaultEmotions];
     }
     return _defaultListView;
 }
 -(WBEmotionListView *)emojiListView{
     if (!_emojiListView) {
         self.emojiListView = [[WBEmotionListView alloc]init];
-        NSString *path = [[NSBundle mainBundle] pathForResource:@"emoji.info.plist" ofType:nil] ;
-        self.emojiListView.emotions = [WBEmotion objectArrayWithKeyValuesArray:[NSArray arrayWithContentsOfFile:path]];
+        self.emojiListView.emotions = [WBEmotionTool emojiEmotions];
     }
     return _emojiListView;
 }
 -(WBEmotionListView *)lxhListView{
     if (!_lxhListView) {
         self.lxhListView = [[WBEmotionListView alloc]init];
-        NSString *path = [[NSBundle mainBundle]pathForResource:@"lxh.info.plist"  ofType:nil];
-        NSArray *lxhEmotion = [NSArray arrayWithContentsOfFile:path];
-        self.lxhListView.emotions = [WBEmotion objectArrayWithKeyValuesArray:lxhEmotion];
+        self.lxhListView.emotions = [WBEmotionTool lxhEmotions];
     }
     return _lxhListView;
     

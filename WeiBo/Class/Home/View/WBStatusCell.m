@@ -176,8 +176,8 @@
     self.sourceLabel.text = status.source;
     self.sourceLabel.frame = (CGRect){{sourceX,sourceY},sourceSize};
     //self.sourceLabel.frame = statusFrame.sourceLabelF;
-    
-    self.contentLabel.text = status.text;
+    //正文
+    self.contentLabel.attributedText = status.attributedText;
     self.contentLabel.frame = statusFrame.contentLabelF;
     
     if (status.retweeted_status) {
@@ -187,8 +187,9 @@
         self.retweetView.frame = statusFrame.retweetF;
         
         self.retweetView.hidden = NO;
-        NSString *retweetedContent = [NSString stringWithFormat:@"@%@ : %@",retweeted_user.name,retweeted_status.text];
-        self.retweetContentLabel.text = retweetedContent;
+//        NSString *retweetedContent = [NSString stringWithFormat:@"@%@ : %@",retweeted_user.name,retweeted_status.text];
+        //被转发微博的正文
+        self.retweetContentLabel.attributedText = status.retweetedAttributedText;
         self.retweetContentLabel.frame = statusFrame.retweetContentLabelF;
         if (retweeted_status.pic_urls.count) {
             self.reweetPhotosView.frame = statusFrame.reweetPhotoF;

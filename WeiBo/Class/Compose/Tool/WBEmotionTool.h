@@ -12,4 +12,11 @@
 @interface WBEmotionTool : NSObject
 + (void)addRecentEmotion:(WBEmotion *)emotion;
 + (NSArray *)recentEmotions;
++ (NSArray *)defaultEmotions;
++ (NSArray *)lxhEmotions;
++ (NSArray *)emojiEmotions;
+/**
+ *  通过表情描述找到对应的表情
+ */
++ (WBEmotion *)emotionWithChs:(NSString *)chs;
 @end

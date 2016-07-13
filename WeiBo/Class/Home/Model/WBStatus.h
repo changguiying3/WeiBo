@@ -13,6 +13,8 @@
 @property(nonatomic,copy)NSString *idstr;
 /**	string	微博信息内容*/
 @property(nonatomic,copy) NSString *text;
+/** 微博信息内容，带有属性*/
+@property(nonatomic,copy) NSAttributedString *attributedText;
 /**	object	微博作者的用户信息字段 */
 @property(nonatomic,strong) WBUser *user;
 /**	微博创建时间*/
@@ -23,6 +25,8 @@
 @property(nonatomic,strong)NSArray *pic_urls;
 /** 转发微博的字段 */
 @property(nonatomic,strong) WBStatus *retweeted_status;
+/** 被转发原创微博的信息内容 －－ 带有属性文字的*/
+@property(nonatomic,copy) NSAttributedString *retweetedAttributedText;
 /** retweet count*/
 @property (nonatomic,assign) NSUInteger reposts_count;
 /** reweet 评论*/
